@@ -2,6 +2,7 @@ package handler
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"project_modul_name/models"
 
@@ -53,4 +54,35 @@ func (h ArticleHandler) FetchArticles(c echo.Context) (err error) {
 	}
 
 	return c.JSON(http.StatusOK, data)
+}
+
+func (h ArticleHandler) Insert(c echo.Context) (err error) {
+	var item models.Article
+	err = c.Bind(&item)
+	if err != nil {
+		resp := ErrorResponse{
+			Message: err.Error(),
+		}
+		return c.JSON(http.StatusUnprocessableEntity, resp)
+	}
+	query := `INSERT article SET title=?, body=?`
+
+	dbRes, err := h.DB.Exec(query, item.Title, item.Body)
+	if err != nil {
+		resp := ErrorResponse{
+			Message: err.Error(),
+		}
+		return c.JSON(http.StatusInternalServerError, resp)
+	}
+
+	insertedID, err := dbRes.LastInsertId()
+	if err != nil {
+		resp := ErrorResponse{
+			Message: err.Error(),
+		}
+		return c.JSON(http.StatusInternalServerError, resp)
+	}
+
+	item.ID = fmt.Sprintf("%d", insertedID)
+	return c.JSON(http.StatusCreated, item)
 }

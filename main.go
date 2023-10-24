@@ -28,6 +28,7 @@ func main() {
 
 	//Register the handler
 	echoServer.GET("/articles", handler.FetchArticles)
+	echoServer.POST("/articles", handler.Insert)
 
 	//Start the server
 	echoServer.Start(":9090")
