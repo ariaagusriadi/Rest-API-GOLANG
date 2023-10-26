@@ -138,3 +138,25 @@ func (h ArticleHandler) Update(c echo.Context) (err error) {
 
 	return c.JSON(http.StatusOK, item)
 }
+
+func (h ArticleHandler) Delete(c echo.Context) (err error) {
+	articleID := c.Param("id")
+
+	if articleID == "" {
+		resp := ErrorResponse{
+			Message: "ID need to update",
+		}
+		return c.JSON(http.StatusUnprocessableEntity, resp)
+	}
+
+	query := "DELETE FROM article WHERE id=?"
+	_, err = h.DB.Exec(query, articleID)
+	if err != nil {
+		resp := ErrorResponse{
+			Message: err.Error(),
+		}
+		return c.JSON(http.StatusInternalServerError, resp)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
