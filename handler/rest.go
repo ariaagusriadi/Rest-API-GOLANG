@@ -86,3 +86,26 @@ func (h ArticleHandler) Insert(c echo.Context) (err error) {
 	item.ID = fmt.Sprintf("%d", insertedID)
 	return c.JSON(http.StatusCreated, item)
 }
+
+func (h ArticleHandler) Get(c echo.Context) (err error) {
+	articleID := c.Param("id")
+
+	query := `SELECT id, title, body FROM article WHERE id=?`
+	row := h.DB.QueryRow(query, articleID)
+	var res models.Article
+	err = row.Scan(
+		&res.ID,
+		&res.Title,
+		&res.Body,
+	)
+	if err != nil {
+		resp := ErrorResponse{
+			Message: err.Error(),
+		}
+		if err == sql.ErrNoRows {
+			return c.JSON(http.StatusNotFound, resp)
+		}
+		return c.JSON(http.StatusInternalServerError, resp)
+	}
+	return c.JSON(http.StatusCreated, res)
+}
