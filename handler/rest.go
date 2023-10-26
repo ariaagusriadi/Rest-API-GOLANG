@@ -109,3 +109,32 @@ func (h ArticleHandler) Get(c echo.Context) (err error) {
 	}
 	return c.JSON(http.StatusCreated, res)
 }
+
+func (h ArticleHandler) Update(c echo.Context) (err error) {
+	var item models.Article
+	err = c.Bind(&item)
+	if err != nil {
+		resp := ErrorResponse{
+			Message: err.Error(),
+		}
+		return c.JSON(http.StatusUnprocessableEntity, resp)
+	}
+
+	if item.ID == "" {
+		resp := ErrorResponse{
+			Message: "ID need to update",
+		}
+		return c.JSON(http.StatusUnprocessableEntity, resp)
+	}
+
+	query := `UPDATE article SET title=?, body=? WHERE id=?`
+	_, err = h.DB.Exec(query, item.Title, item.Body, item.ID)
+	if err != nil {
+		resp := ErrorResponse{
+			Message: err.Error(),
+		}
+		return c.JSON(http.StatusInternalServerError, resp)
+	}
+
+	return c.JSON(http.StatusOK, item)
+}

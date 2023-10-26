@@ -30,6 +30,7 @@ func main() {
 	echoServer.GET("/articles", handler.FetchArticles)
 	echoServer.POST("/articles", handler.Insert)
 	echoServer.GET("/articles/:id", handler.Get)
+	echoServer.PUT("/articles/:id", handler.Update)
 
 	//Start the server
 	echoServer.Start(":9090")
